@@ -278,7 +278,7 @@ h3[class="Alert"] {
 
 .User {
 	display: none;
-
+	width: 30vw;
 	transition: 0.5s;
 }
 .User:hover {
@@ -461,4 +461,21 @@ h3[class="Alert"] {
 
 .Module {
 	display: none;
+}
+
+
+.TutorialsMainPanel {
+	position: absolute;
+
+	padding: 0.5vw;
+	left: 50%;
+
+	margin-top: 3vw;
+
+	width: 90vw;
+	transform: translate(-50%, 0px);
+
+	border-radius: 10vw;
+
+	background: rgba(20, 20, 20, 0.8);
 }

@@ -9,8 +9,8 @@
 
 <body>
 	<div class="Head">
-		<span class="FirstLine"><h1 class="MainHead">Brainstorm</h1></span>
-		<span class="FirstLine"><h2>Courses</h2></span>
+		<div class="TitlePage"><span class="FirstLine"><h1 class="MainHead">Brainstorm</h1></span>
+		<span class="FirstLine"><h2>Courses</h2></span></div>
 
 		<div id="Auth">
 			<span><button class="SignUp" id="SignUpBtn">Sign up</button></span>
@@ -94,10 +94,13 @@
 
 		<div class="Module">
 			<center><h2 class="Login">Модули курса</center>
-
-			<center><table class="CoursesTable" id="ModuleTable">
-			</table></center>
 		</div>
+	</div>
+
+
+	<div class="TutorialsMainPanel" id="TutorialsMainPanel">
+		<center><table class="CoursesTable" id="TutorialsMainPanelTable">
+		</table></center>
 	</div>
 
 
@@ -121,6 +124,7 @@
 
 		let GetTutorialPost = false;
 		let GetTutorialPut = false;
+		let GetTutorialAll = false
 
 		let Filter = "";
 
@@ -148,6 +152,7 @@
 		const LoginWindow = document.getElementById("LoginWindow");
 		const RegisterWindow = document.getElementById("RegisterWindow");
 		const UserWindow = document.getElementById('UserPanel')
+		const TutorialWindow = document.getElementById('TutorialsMainPanel');
 
 		const RegisterTitle = document.getElementById("RegisterTitle");
 		const LoginTitle = document.getElementById("LoginTitle");
@@ -175,6 +180,8 @@
 
 		const CreateDocBtn = document.getElementById("CreateBtn")
 
+		const TutorialsMainPanelDoc = document.getElementById("TutorialsMainPanelTable")
+
 		min = function(arg1, arg2) {
 			if (arg1 > arg2) {
 				return arg2;
@@ -192,9 +199,15 @@
 		TutorialUser.responseType = "json";
 
 
+		GetTutorialAll = true;
+
+		TutorialUser.open('GET', BaseUrl + 'tutorial/all/');
+		TutorialUser.send();
+
+
 		TutorialUser.onload = function() {
 			if (TutorialUser.status <= 200) {
-				if (GetTutorialPut == false && GetUserPost == false) {
+				if (GetTutorialPut == false && GetUserPost == false && GetTutorialAll == false) {
 					NowTutorialName = TutorialUser.response['name'];
 					NowTutorialDescription = TutorialUser.response['description'];
 					UserCoursesModule = TutorialUser.response['modules']
@@ -209,6 +222,14 @@
 					TutorialUser.send();
 
 					GetUserPost = false;
+				}
+				else if (GetTutorialAll == true) {
+					UserCourses = TutorialUser.response;
+					console.log(UserCourses.length)
+
+					shooTutorialAllWindow();
+
+					GetTutorialAll = false;
 				}
 			}
 		}
@@ -238,6 +259,7 @@
 			RegisterWindow.style.display = "none";
 			UserWindow.style.display = "none";
 			ModuleDoc.style.display = "none";
+			TutorialWindow.style.display = 'none';
 		}
 		showLoginWindow = function() {
 			AlertWindow.style.display = "none";
@@ -245,6 +267,7 @@
 			RegisterWindow.style.display = "none";
 			UserWindow.style.display = "none";
 			ModuleDoc.style.display = "none";
+			TutorialWindow.style.display = 'none';
 
 			LoginTitle.textContent = "Вход";
 		}
@@ -254,6 +277,7 @@
 			RegisterWindow.style.display = "block";
 			UserWindow.style.display = "none";
 			ModuleDoc.style.display = "none";
+			TutorialWindow.style.display = 'none';
 
 			RegisterTitle.textContent = "Регистрация";
 		}
@@ -263,6 +287,7 @@
 			RegisterWindow.style.display = "none";
 			UserWindow.style.display = "block";
 			ModuleDoc.style.display = "none";
+			TutorialWindow.style.display = 'none';
 
 			TitleName.value = UserName;
 			DescriptionDoc.textContent = UserDescription;
@@ -295,7 +320,7 @@
 							TutorialUser.setRequestHeader("Authorization", Token);
 							TutorialUser.send();
 
-							closeUserWindow();
+							shooTutorialAllWindow();
 						}
 					}
 				}
@@ -307,6 +332,7 @@
 			RegisterWindow.style.display = "none";
 			UserWindow.style.display = "none";
 			ModuleDoc.style.display = "block";
+			TutorialWindow.style.display = 'none';
 
 			TutorialDesriptionDoc.textContent = NowTutorialDescription;
 			TutorialNameDoc.value = NowTutorialName;
@@ -323,6 +349,47 @@
 				ModuleTable.style.display = "block";
 			}
 			Redact = false;
+		}
+		shooTutorialAllWindow = function() {
+			AlertWindow.style.display = "none";
+			LoginWindow.style.display = "none";
+			RegisterWindow.style.display = "none";
+			UserWindow.style.display = "none";
+			ModuleDoc.style.display = "none";
+
+
+			if (UserCourses.length > 0) {
+				TutorialWindow.style.display = 'block';
+
+				for(var i = 0; i < TutorialsMainPanelDoc.rows.length; ++i){
+            		TutorialsMainPanelDoc.deleteRow(i);
+        		}
+
+				for (let i = 0; i < UserCourses.length / 5; ++i) {
+					let row = TutorialsMainPanelDoc.insertRow();
+					for (let j = 0; j < min(UserCourses.length - i * 5, 5); ++j) {
+						let Cell = row.insertCell();
+
+						Cell.innerHTML = '\
+						<div class="OneCourse" id="Course' + (i * 5 + j) + '">\n\
+							<h1 class="CourseTitle">' + UserCourses[i * 5 + j]['name'] + '</h1>\n\
+							<h3 class="CourseDesription">' + UserCourses[i * 5 + j]['description'] + '</h3>\n\
+						</div>';
+
+						const DocCourse = document.getElementById('Course' + (i * 5 + j));
+						DocCourse.onclick = function() {
+							NowTutorialId = UserCourses[i * 5 + j]['id'];
+
+							TutorialUser.open('GET', BaseUrl + "tutorial/" + NowTutorialId);
+							TutorialUser.setRequestHeader("accept", "application/json");
+							TutorialUser.setRequestHeader("Authorization", Token);
+							TutorialUser.send();
+
+							shooTutorialAllWindow();
+						}
+					}
+				}
+			}
 		}
 
 		closeAlertWindow = function() {
@@ -371,8 +438,7 @@
 		RegisterUser.onload = function() {
 			if (RegisterUser.status <= 200) {
 				if (GetUserPost == false && GetUserPut == false) {
-					closeRegisterWindow();
-					closeLoginWindow();
+					shooTutorialAllWindow();
 					IsLogin = true;
 					Token = RegisterUser.response['token'];
 
