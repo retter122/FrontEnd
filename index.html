@@ -182,10 +182,6 @@
 			return arg1;
 		}
 
-
-		
-
-
 		const BaseUrl = "http://127.0.0.1:8080/";
 
 
@@ -204,9 +200,37 @@
 					UserCoursesModule = TutorialUser.response['modules']
 					showModulesWindow();
 				}
+				else if (GetUserPost == true) {
+					NowTutorialId = TutorialUser.response['id'];
+
+					TutorialUser.open('GET', BaseUrl + "tutorial/" + NowTutorialId);
+					TutorialUser.setRequestHeader("accept", "application/json");
+					TutorialUser.setRequestHeader("Authorization", Token);
+					TutorialUser.send();
+
+					GetUserPost = false;
+				}
 			}
 		}
 
+
+		CreateDocBtn.onclick = function() {
+			GetUserPost = true
+			Redact = true;
+
+			let Data = {
+				"name": "New course",
+				"description": "Your description"
+			};
+
+			TutorialUser.open('POST', BaseUrl + "tutorial/");
+			TutorialUser.setRequestHeader("accept", "application/json");
+			TutorialUser.setRequestHeader("Authorization", Token);
+			TutorialUser.setRequestHeader("Content-Type", "application/json");
+			TutorialUser.send(JSON.stringify(Data));
+
+			closeUserWindow();
+		}
 
 		showAlertWindow = function() {
 			AlertWindow.style.display = "block";
@@ -287,8 +311,6 @@
 			TutorialDesriptionDoc.textContent = NowTutorialDescription;
 			TutorialNameDoc.value = NowTutorialName;
 			if (Redact) {
-				TutorialNameDoc.value += "(редактирование)";
-
 				TutorialDesriptionDoc.disabled = false;
 				TutorialNameDoc.disabled = false;
 			}
@@ -393,6 +415,11 @@
 
 
 		UserDoc.onclick = function() {
+			GetUserPost = true;
+			RegisterUser.open('GET', BaseUrl + 'user/');
+			RegisterUser.setRequestHeader("accept", "application/json");
+			RegisterUser.setRequestHeader("Authorization", Token);
+			RegisterUser.send();
 			showUserWindow();
 		}
 
