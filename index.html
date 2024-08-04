@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<head>
+	<meta charset="utf-8">
+	<title>Brainshorm</title>
+
+	<link rel="stylesheet" href="style/style.css">
+
+</head>
+
+<body>
+	<div class="Head">
+		<span class="FirstLine"><h1 class="MainHead">Brainstorm</h1></span>
+		<span class="FirstLine"><h2>Courses</h2></span>
+
+		<div id="Auth">
+			<span><button class="SignUp" id="SignUpBtn">Sign up</button></span>
+			<span><button class="SignUp" id="SignInBtn">Sign in</button></span>
+		</div>
+		<div class="User" id="User">
+			<span><img class="UserIco" id="UserIco" src='style/img/BaseAvatar.werb'></img></span>
+			<span><h3 class="UserName" id="UserName"></h3></span>
+		</div>
+	</div>
+	<div class="NavigPanel">
+		<button class="NavigBtn" id="Backend">Backend</button>
+		<button class="NavigBtn" id="Frontend">Frontend</button>
+		<button class="NavigBtn" id="Fullstack">Fullstack</button>
+		<button class="NavigBtn" id="Gamedev">Gamedev</button>
+		<button class="NavigBtn" id="Design">Design</button>
+		<button class="NavigBtn" id="3D">3D</button>
+		<button class="NavigBtn" id="UAS">UAS</button>
+		<button class="NavigBtn" id="Business">Business</button>
+	</div>
+
+
+	<div class="RegisterWindow" id="RegisterWindow">
+		<center>
+			<h2 class="Registration" id="RegisterTitle">Регистрация</h2>
+
+			<input type="text" id="RegUserNameField" placeholder="Введите имя пользователя">
+			<input type="text" id="RegMailField" placeholder="Введите почту">
+			<input type="text" id="RegPasswordField" placeholder="Введите пароль">
+
+			<button class="RegisterBtn" id="RegisterBtn">Зарегистрироваться</button>
+		</center>
+	</div>
+
+
+	<div class="AlertWindow" id="AlertWindow">
+		<center>
+			<h2 class="Alert">Действие недоступно</h2>
+			<h3 class="Alert">Необходимо пройти аутенфикацию</h3>
+		</center>
+	</div>
+
+
+	<div class="LoginWindow" id="LoginWindow">
+		<center>
+			<h2 class="Login" id="LoginTitle">Вход</h2>
+
+			<input type="text" id="LogMailField" placeholder="Введите почту">
+			<input type="text" id="LogPasswordField" placeholder="Введите пароль">
+
+			<button class="LoginBtn" id="LoginBtn">Войти</button>
+		</center>
+	</div>
+
+
+	<div class="UserPanel" id="UserPanel">
+		<center><h2 class="Login" id="LoginTitle">Профиль</h2></center>
+
+		<span class="UserContainer"><img class="BigUserImg" src='style/img/BaseAvatar.werb'></span>
+		<span class="UserContainer">
+			<input type="text" class="TitleName" id="TitleName">
+			<textarea class="Description" id="Description" placeholder="Введите описание профиля"> </textarea>
+		</span>
+
+		<div class="Courses" id="Courses">
+			<center><h2 class="Login">Ваши курсы</h2></center>
+
+			<center><table class="CoursesTable" id="CoursesTable">
+			</table></center>
+		</div>
+
+		<center>
+			<button class="CreateBtn" id="CreateBtn">Создать свой курс</button>
+		</center>
+	</div>
+
+
+	<div class="EditPanel" id="EditPanel">
+		<center><input type="text" class="InputName" id="InputName" placeholder="Введите название курса"></center>
+		<center><textarea class="ModuleDescription" id="ModuleDescription" placeholder="Введите описание курса"></textarea></center>
+
+		<div class="Module">
+			<center><h2 class="Login">Модули курса</center>
+
+			<center><table class="CoursesTable" id="ModuleTable">
+			</table></center>
+		</div>
+	</div>
+
+
+	<script>
+		let Token = "";
+		let IsLogin = false;
+
+		let UserName = "";
+		let UserDescription = "";
+
+		let UserCourses = [];
+
+		let NowTutorialId = 0;
+		let NowTutorialName = 0;
+		let NowTutorialDescription = 0;
+		let Redact = false;
+		let UserCoursesModule = [];
+
+		let GetUserPost = false;
+		let GetUserPut = false;
+
+		let GetTutorialPost = false;
+		let GetTutorialPut = false;
+
+		let Filter = "";
+
+		const UserCoursesTable = document.getElementById("CoursesTable");
+
+		const UserNameArea = document.getElementById("TitleName");
+		const UserDescriptionArea = document.getElementById("Description");
+
+		const BackendBtn = document.getElementById("Backend");
+		const FrontendBtn = document.getElementById("Frontend");
+		const FullstackBtn = document.getElementById("Fullstack");
+		const GamedevBtn = document.getElementById("Gamedev");
+		const DesignBtn = document.getElementById("Design")
+		const D3Btn = document.getElementById("3D");
+		const UASBtn = document.getElementById("UAS");
+		const BusinessBtn = document.getElementById("Business");
+
+		const SignInBtn = document.getElementById("SignInBtn");
+		const RegisterBtn = document.getElementById("RegisterBtn");
+
+		const SignUpBtn = document.getElementById("SignUpBtn");
+		const LoginBtn = document.getElementById("LoginBtn");
+
+		const AlertWindow = document.getElementById("AlertWindow");
+		const LoginWindow = document.getElementById("LoginWindow");
+		const RegisterWindow = document.getElementById("RegisterWindow");
+		const UserWindow = document.getElementById('UserPanel')
+
+		const RegisterTitle = document.getElementById("RegisterTitle");
+		const LoginTitle = document.getElementById("LoginTitle");
+
+
+		const RegUserName = document.getElementById("RegUserNameField");
+		const RegMail = document.getElementById("RegMailField");
+		const RegPassword = document.getElementById("RegPasswordField");
+
+		const LogMail = document.getElementById("LogMailField");
+		const LogPassword = document.getElementById("LogPasswordField");
+
+		const AuthDoc = document.getElementById("Auth");
+		const UserDoc = document.getElementById("User");
+		const UserNameDoc = document.getElementById('UserName');
+		const TitleName = document.getElementById('TitleName');
+		const DescriptionDoc = document.getElementById("Description");
+		const CoursesDoc = document.getElementById("Courses");
+		const ModuleDoc = document.getElementById('EditPanel');
+
+		const ModuleTable = document.getElementById('Module');
+
+		const TutorialDesriptionDoc = document.getElementById('ModuleDescription');
+		const TutorialNameDoc = document.getElementById('InputName');
+
+		const CreateDocBtn = document.getElementById("CreateBtn")
+
+		min = function(arg1, arg2) {
+			if (arg1 > arg2) {
+				return arg2;
+			}
+			return arg1;
+		}
+
+
+		
+
+
+		const BaseUrl = "http://127.0.0.1:8080/";
+
+
+		const RegisterUser = new XMLHttpRequest();
+		RegisterUser.responseType = "json";
+
+		const TutorialUser = new XMLHttpRequest();
+		TutorialUser.responseType = "json";
+
+
+		TutorialUser.onload = function() {
+			if (TutorialUser.status <= 200) {
+				if (GetTutorialPut == false && GetUserPost == false) {
+					NowTutorialName = TutorialUser.response['name'];
+					NowTutorialDescription = TutorialUser.response['description'];
+					UserCoursesModule = TutorialUser.response['modules']
+					showModulesWindow();
+				}
+			}
+		}
+
+
+		showAlertWindow = function() {
+			AlertWindow.style.display = "block";
+			LoginWindow.style.display = "none";
+			RegisterWindow.style.display = "none";
+			UserWindow.style.display = "none";
+			ModuleDoc.style.display = "none";
+		}
+		showLoginWindow = function() {
+			AlertWindow.style.display = "none";
+			LoginWindow.style.display = "block";
+			RegisterWindow.style.display = "none";
+			UserWindow.style.display = "none";
+			ModuleDoc.style.display = "none";
+
+			LoginTitle.textContent = "Вход";
+		}
+		showRegisterWindow = function() {
+			AlertWindow.style.display = "none";
+			LoginWindow.style.display = "none";
+			RegisterWindow.style.display = "block";
+			UserWindow.style.display = "none";
+			ModuleDoc.style.display = "none";
+
+			RegisterTitle.textContent = "Регистрация";
+		}
+		showUserWindow = function() {
+			AlertWindow.style.display = "none";
+			LoginWindow.style.display = "none";
+			RegisterWindow.style.display = "none";
+			UserWindow.style.display = "block";
+			ModuleDoc.style.display = "none";
+
+			TitleName.value = UserName;
+			DescriptionDoc.textContent = UserDescription;
+
+			if (UserCourses.length > 0) {
+				CoursesDoc.style.display = "block";
+
+				for(var i = 0; i < UserCoursesTable.rows.length; ++i){
+            		UserCoursesTable.deleteRow(i);
+        		}
+
+				for (let i = 0; i < UserCourses.length / 4; ++i) {
+					let row = UserCoursesTable.insertRow();
+					for (let j = 0; j < min(UserCourses.length - i * 4, 4); ++j) {
+						let Cell = row.insertCell();
+
+						Cell.innerHTML = '\
+						<div class="OneCourse" id="Course' + (i * 4 + j) + '">\n\
+							<h1 class="CourseTitle">' + UserCourses[i * 4 + j]['name'] + '</h1>\n\
+							<h3 class="CourseDesription">' + UserCourses[i * 4 + j]['description'] + '</h3>\n\
+						</div>';
+
+						const DocCourse = document.getElementById('Course' + (i * 4 + j));
+						DocCourse.onclick = function() {
+							NowTutorialId = UserCourses[i * 4 + j]['id'];
+							Redact = true;
+
+							TutorialUser.open('GET', BaseUrl + "tutorial/" + NowTutorialId);
+							TutorialUser.setRequestHeader("accept", "application/json");
+							TutorialUser.setRequestHeader("Authorization", Token);
+							TutorialUser.send();
+
+							closeUserWindow();
+						}
+					}
+				}
+			}
+		}
+		showModulesWindow = function() {
+			AlertWindow.style.display = "none";
+			LoginWindow.style.display = "none";
+			RegisterWindow.style.display = "none";
+			UserWindow.style.display = "none";
+			ModuleDoc.style.display = "block";
+
+			TutorialDesriptionDoc.textContent = NowTutorialDescription;
+			TutorialNameDoc.value = NowTutorialName;
+			if (Redact) {
+				TutorialNameDoc.value += "(редактирование)";
+
+				TutorialDesriptionDoc.disabled = false;
+				TutorialNameDoc.disabled = false;
+			}
+			else {
+				TutorialDesriptionDoc.disabled = true;
+				TutorialNameDoc.disabled = true;
+			}
+
+			if (UserCoursesModule.length > 0) {
+				ModuleTable.style.display = "block";
+			}
+			Redact = false;
+		}
+
+		closeAlertWindow = function() {
+			AlertWindow.style.display = "none";
+		}
+		closeLoginWindow = function() {
+			LoginWindow.style.display = "none";
+		}
+		closeRegisterWindow = function() {
+			RegisterWindow.style.display = "none";
+		}
+		closeUserWindow = function() {
+			UserWindow.style.display = "none";
+		}
+		closeModulesWindow = function() {
+			ModuleDoc.style.display = "none";
+		}
+
+
+		UserNameArea.onchange = function() {
+			RegisterUser.open('PUT', BaseUrl + 'user/');
+			let Data = {
+				"name": UserNameArea.value,
+				"description": UserDescriptionArea.value
+			};
+			GetUserPut = true;
+			RegisterUser.setRequestHeader("accept", "application/json");
+			RegisterUser.setRequestHeader("Authorization", Token);
+			RegisterUser.setRequestHeader("Content-Type", "application/json");
+			RegisterUser.send(JSON.stringify(Data));
+		}
+		UserDescriptionArea.oninput = function() {
+			RegisterUser.open('PUT', BaseUrl + 'user/');
+			let Data = {
+				"name": UserNameArea.value,
+				"description": UserDescriptionArea.value
+			};
+			GetUserPut = true;
+			RegisterUser.setRequestHeader("accept", "application/json");
+			RegisterUser.setRequestHeader("Authorization", Token);
+			RegisterUser.setRequestHeader("Content-Type", "application/json");
+			RegisterUser.send(JSON.stringify(Data));
+		}
+
+
+		RegisterUser.onload = function() {
+			if (RegisterUser.status <= 200) {
+				if (GetUserPost == false && GetUserPut == false) {
+					closeRegisterWindow();
+					closeLoginWindow();
+					IsLogin = true;
+					Token = RegisterUser.response['token'];
+
+					AuthDoc.style.display = "none";
+					UserDoc.style.display = "block";
+
+					GetUserPost = true;
+					RegisterUser.open('GET', BaseUrl + 'user/');
+					RegisterUser.setRequestHeader("accept", "application/json");
+					RegisterUser.setRequestHeader("Authorization", Token);
+					RegisterUser.send();
+				}
+
+				else if (GetUserPost) {
+					UserName = RegisterUser.response['name'];
+					UserDescription = RegisterUser.response['description'];
+					UserCourses = RegisterUser.response['tutorials']
+
+					UserNameDoc.textContent = UserName;
+					GetUserPost = false;
+				}
+
+				else {
+					UserName = RegisterUser.response['name'];
+					UserDescription = RegisterUser.response['description'];
+
+					UserNameDoc.textContent = UserName;
+
+					GetUserPut = false;
+				}
+			}
+			else if (RegisterUser.status == 401) {
+				RegisterTitle.textContent = "Почта уже занята";
+				LoginTitle.textContent = "Неправильный пароль";
+			}
+			else if (RegisterUser.status == 404) {
+				LoginTitle.textContent = "Пользователя несуществует";
+			}
+		}
+
+
+		UserDoc.onclick = function() {
+			showUserWindow();
+		}
+
+
+		BackendBtn.onclick = function() {
+			Filter = "BACKEND";
+		} 
+		FrontendBtn.onclick = function() {
+			Filter = "FRONTEND";
+		} 
+		FullstackBtn.onclick = function() {
+			Filter = "FULLSTACK";
+		}
+		GamedevBtn.onclick = function() {
+			Filter = "GAMEDEV";
+		}
+		DesignBtn.onclick = function() {
+			Filter = "DESIGN";
+		}
+		D3Btn.onclick = function() {
+			Filter = "MODELING3D";
+		}
+		UASBtn.onclick = function() {
+			Filter = "BAS";
+		}
+		BusinessBtn.onclick = function() {
+			Filter = "BUSINESS";
+		}
+
+
+		SignUpBtn.onclick = function()  {
+			showLoginWindow();
+		}
+		SignInBtn.onclick = function() { 
+			showRegisterWindow();
+		}
+
+
+		RegisterBtn.onclick = function() {
+			if (RegUserName.value.length == 0) RegisterTitle.textContent = "Имя пользователя не указано";
+			else if (RegMail.value.length == 0) RegisterTitle.textContent = "Почта не указана";
+			else if (RegPassword.value.length == 0) RegisterTitle.textContent = "Пароль не указан";
+			else {
+				RegisterTitle.textContent = "Загрузка...";
+
+				let Data = {
+					"name": RegUserName.value,
+					"mail": RegMail.value,
+					"password": RegPassword.value
+				};
+				RegisterUser.open('POST', BaseUrl + 'user/registration/');
+				RegisterUser.setRequestHeader("Content-Type", "application/json");
+				RegisterUser.send(JSON.stringify(Data));
+			}
+		}
+
+		LoginBtn.onclick = function() {
+			if (LogMail.value.length == 0) LoginTitle.textContent = "Почта не указана";
+			else if (LogPassword.value.length == 0) LoginTitle.textContent = "Пароль не указан";
+			else {
+				LoginTitle.textContent = "Загрузка...";
+
+				let Data = {
+					"mail": LogMail.value,
+					"password": LogPassword.value
+				};
+				RegisterUser.open('POST', BaseUrl + 'user/login/');
+				RegisterUser.setRequestHeader("Content-Type", "application/json");
+				RegisterUser.send(JSON.stringify(Data));
+			}
+		}
+	</script>
+</body>
+</html>
